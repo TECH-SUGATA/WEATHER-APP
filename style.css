@@ -919,5 +919,8 @@ a:hover { text-decoration: underline; }
 
 
 #bg-layer {
-  background: url("https://chatgpt.com/backend-api/estuary/content?id=file_0000000090d871fa90e13174f73fd3bc&ts=493404&p=fs&cid=1&sig=1959b7a22d637b62855311aab72997a1b9d73b715f749adf59815cc2e1d71950&v=0") no-repeat center/cover;
+  background: url("https://images.openai.com/static-rsc-4/I-ljaMbxC8NdaoGoW46KfsHKNFg9ONnDjuW85f6Q8I5vaYngcsjxuBaNLK10TODB-lQXtD_2NgsDeZp5vjd7diAvQiE5uGpP0j6hjVnuoTGIfchpVJ6KNag4152Y5W1cc3Lgh5mndlPavOw8N3p53GkH7Cr6yruoNBAJwiw4qJpXoTO_mgy0RcimcbB6Fa5S?purpose=fullsize") no-repeat center/cover;
 }
+
+
+
