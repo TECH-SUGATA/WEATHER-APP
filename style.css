@@ -1904,4 +1904,15 @@ body.light-mode {
   var(--text-secondary) { color: #555 !important; }
 }
 
-/* ─── END OF FILE ──────────────────────────────────── */
+/* ─── END OF FILE ──────────────────────────────────── 
+
+
+
+#apiModal {
+  display: none !important;
+}
+
+
+#bg-layer {
+  background: url("https://images.openai.com/static-rsc-4/kO8h1ileZEwa0nCd1F61vDSlGnDyxib4YlH2ZcJTOpAjXOWi0opU5lTetMus6_YvX5B6XPpF5cEVPGhe-kdk1jYXqXVnhfo7RU6yHomzwNkRXdVr5S49pWpuEZPh7K0KVRQil6Bf4n2RmH_Xl9bW9C7uVSrmPq_VlOMJDsOyTjYv-tMu1IZLQqBjjQ4o18S_?purpose=inline") no-repeat center/cover;
+}
