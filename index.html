@@ -1,653 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nimbus Weather — Premium Edition</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="nimbus-weather-premium.css">
-<style>
-/* Demo controls */
-.demo-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 99999;
-  background: rgba(4,8,24,0.97);
-  border-top: 1px solid rgba(255,255,255,0.10);
-  backdrop-filter: blur(32px);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.demo-bar span {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.4);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-right: 4px;
-}
-.demo-btn {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.75);
-  cursor: pointer;
-  transition: all 0.18s;
-}
-.demo-btn:hover, .demo-btn.active {
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.35);
-  color: white;
-}
-.demo-btn.temp-btn { font-size: 0.7rem; }
-
-/* Temp specific colors */
-.demo-btn[data-temp="freezing"]  { border-color: rgba(147,197,253,0.4); }
-.demo-btn[data-temp="cold"]      { border-color: rgba(125,211,252,0.4); }
-.demo-btn[data-temp="mild"]      { border-color: rgba(134,239,172,0.4); }
-.demo-btn[data-temp="warm"]      { border-color: rgba(252,211,77,0.4); }
-.demo-btn[data-temp="hot"]       { border-color: rgba(251,146,60,0.4); }
-.demo-btn[data-temp="very-hot"]  { border-color: rgba(248,113,113,0.4); }
-.demo-btn[data-temp="extreme"]   { border-color: rgba(239,68,68,0.5); }
-
-.demo-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nimbus — Weather Intelligence</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
-<body class="weather-clear season-summer">
+<body class="weather-clear" id="app-body">
 
-<!-- Animated background layers -->
-<div class="bg-layer" id="bg-layer"></div>
-<div class="aurora-layer"></div>
-<div class="bg-orbs">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-  <div class="orb orb4"></div>
-</div>
-<div class="lightning-overlay"></div>
-<canvas id="particles-canvas"></canvas>
+  <!-- Animated BG Layers -->
+  <div class="bg-layer" id="bg-layer"></div>
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
 
-<!-- ── APP ─────────────────────────────────── -->
-<div class="app-wrapper">
-
-  <!-- Header -->
-  <header class="app-header">
-    <div class="logo">
-      <span class="logo-icon">⛅</span>
-      <span class="logo-text">NIMBUS</span>
-      <span class="logo-badge">LIVE</span>
-    </div>
-    <div class="header-right">
-      <button class="icon-btn" title="Refresh"><i class="fas fa-rotate-right"></i></button>
-      <button class="icon-btn" title="Favorites"><i class="fas fa-heart"></i></button>
-      <button class="icon-btn" title="Settings"><i class="fas fa-sliders"></i></button>
-      <div class="unit-toggle" onclick="toggleUnit(this)" title="Switch units">
-        <div class="unit-toggle-thumb" id="unitThumb" style="left:4px;width:42px;"></div>
-        <span class="unit-option active" id="unitC">°C</span>
-        <span class="unit-option" id="unitF">°F</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Search -->
-  <div class="search-section">
-    <div class="search-box">
-      <i class="fas fa-magnifying-glass search-icon"></i>
-      <input type="text" id="searchInput" placeholder="Search city, airport, coordinates…">
-      <button class="btn-locate"><i class="fas fa-location-crosshairs"></i> Locate me</button>
-      <button class="search-btn"><i class="fas fa-arrow-right"></i>&nbsp; Search</button>
+  <!-- API Key Setup Modal -->
+  <div class="modal-overlay" id="apiModal">
+    <div class="modal-card">
+      <div class="modal-icon">🌤️</div>
+      <h2>Welcome to <span>Nimbus</span></h2>
+      <p>Enter your free <strong>OpenWeatherMap API key</strong> to get started with real-time weather data.</p>
+      <a href="https://openweathermap.org/api" target="_blank" class="get-key-link">→ Get a free API key here</a>
+      <input type="text" id="apiKeyInput" placeholder="Paste your API key..." />
+      <button class="btn-primary" id="saveApiKey">Launch Nimbus</button>
+      <small>Your key is stored only in your browser's localStorage.</small>
     </div>
   </div>
 
-  <!-- Main content -->
-  <div class="main-content show">
+  <!-- Main App -->
+  <div class="app-wrapper">
 
-    <!-- Hero Card -->
-    <div class="glass-card hero-card">
-      <div class="hero-left">
-        <div class="weather-badge"><div class="weather-badge-dot"></div>Clear Sky</div>
-        <div class="city-name">Kolkata</div>
-        <div class="country-date">
-          India, West Bengal <span class="dot">·</span> Wed, Apr 15 <span class="dot">·</span> 3:24 PM IST
-        </div>
-        <div class="temp-display">
-          <span id="tempValue" class="temp-freezing">34</span>
-          <span class="temp-unit">°C</span>
-        </div>
-        <div class="weather-desc">Clear sky · Strong sunshine</div>
-        <div class="temp-range">
-          <span class="temp-range-item temp-hi"><i class="fas fa-arrow-up"></i>&nbsp;38°</span>
-          <span class="temp-range-item temp-lo"><i class="fas fa-arrow-down"></i>&nbsp;27°</span>
-        </div>
-        <div class="feels-row">Feels like <strong>37°C</strong> &nbsp;·&nbsp; Humidity 68% &nbsp;·&nbsp; UV Index 9</div>
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">⛅</span>
+        <span class="logo-text">Nimbus</span>
       </div>
-      <div class="hero-right">
-        <div class="weather-icon-wrap">
-          <div class="icon-glow"></div>
-          <div class="big-icon">☀️</div>
-        </div>
-        <div class="sun-times">
-          <div class="sun-item">
-            <i class="fas fa-sun"></i>
-            <div><span class="sun-label">Sunrise</span><span class="sun-time">5:30 AM</span></div>
-          </div>
-          <div class="sun-item">
-            <i class="fas fa-moon"></i>
-            <div><span class="sun-label">Sunset</span><span class="sun-time">6:09 PM</span></div>
-          </div>
-        </div>
+      <div class="header-right">
+        <button class="unit-toggle" id="unitToggle" title="Toggle °C / °F">
+          <span id="unitLabel">°C</span>
+        </button>
+        <button class="icon-btn" id="geoBtn" title="Use my location">
+          <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+        <button class="icon-btn" id="themeBtn" title="Toggle theme">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+        <button class="icon-btn" id="changeKeyBtn" title="Change API Key">
+          <i class="fa-solid fa-key"></i>
+        </button>
       </div>
+    </header>
+
+    <!-- Search Bar -->
+    <section class="search-section">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search for a city, country..." autocomplete="off" />
+        <button class="search-btn" id="searchBtn">Search</button>
+      </div>
+      <div class="suggestions-box" id="suggestionsBox"></div>
+    </section>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <p>Fetching weather data...</p>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="glass-card stat-card" data-tooltip="Current humidity level">
-        <div class="stat-top">
-          <div class="stat-icon-wrap blue"><i class="fas fa-droplet"></i></div>
-          <span class="stat-trend up">+4%</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Humidity</span>
-          <span class="stat-value">68%</span>
-          <span class="stat-sub">Moderate</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:68%"></div></div>
-      </div>
-      <div class="glass-card stat-card" data-tooltip="Current wind speed">
-        <div class="stat-top">
-          <div class="stat-icon-wrap teal"><i class="fas fa-wind"></i></div>
-          <span class="stat-trend flat">—</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Wind</span>
-          <span class="stat-value">18 km/h</span>
-          <span class="stat-sub">South-West ↙</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:30%"></div></div>
-      </div>
-      <div class="glass-card stat-card" data-tooltip="Atmospheric pressure">
-        <div class="stat-top">
-          <div class="stat-icon-wrap orange"><i class="fas fa-gauge-high"></i></div>
-          <span class="stat-trend down">−2 hPa</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Pressure</span>
-          <span class="stat-value">1012 hPa</span>
-          <span class="stat-sub">Normal</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:52%"></div></div>
-      </div>
-      <div class="glass-card stat-card" data-tooltip="UV radiation index">
-        <div class="stat-top">
-          <div class="stat-icon-wrap amber"><i class="fas fa-sun"></i></div>
-          <span class="stat-trend up">High</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">UV Index</span>
-          <span class="stat-value">9 / 11</span>
-          <span class="stat-sub">Very High</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:82%"></div></div>
-      </div>
-      <div class="glass-card stat-card" data-tooltip="Visibility distance">
-        <div class="stat-top">
-          <div class="stat-icon-wrap purple"><i class="fas fa-eye"></i></div>
-          <span class="stat-trend flat">—</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Visibility</span>
-          <span class="stat-value">10 km</span>
-          <span class="stat-sub">Excellent</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:100%"></div></div>
-      </div>
-      <div class="glass-card stat-card" data-tooltip="Dew point temperature">
-        <div class="stat-top">
-          <div class="stat-icon-wrap green"><i class="fas fa-temperature-half"></i></div>
-          <span class="stat-trend up">+1°</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-label">Dew Point</span>
-          <span class="stat-value">27°C</span>
-          <span class="stat-sub">Muggy</span>
-        </div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:70%"></div></div>
-      </div>
-    </div>
+    <!-- Error Toast -->
+    <div class="error-toast" id="errorToast"></div>
 
-    <!-- Hourly Forecast -->
-    <div class="glass-card section-block">
-      <div class="section-header">
-        <div class="section-header-icon"><i class="fas fa-clock"></i></div>
-        <h3>Hourly Forecast</h3>
-        <span class="section-header-right">Next 24 hours</span>
-      </div>
-      <div class="hourly-scroll">
-        <div class="hourly-item now">
-          <span class="hourly-time">Now</span>
-          <span class="hourly-icon">☀️</span>
-          <span class="hourly-temp">34°</span>
-          <span class="hourly-rain">0%</span>
-        </div>
-        <div class="hourly-item"><span class="hourly-time">4 PM</span><span class="hourly-icon">🌤️</span><span class="hourly-temp">35°</span><span class="hourly-rain">0%</span></div>
-        <div class="hourly-item"><span class="hourly-time">5 PM</span><span class="hourly-icon">⛅</span><span class="hourly-temp">35°</span><span class="hourly-rain">5%</span></div>
-        <div class="hourly-item"><span class="hourly-time">6 PM</span><span class="hourly-icon">🌥️</span><span class="hourly-temp">33°</span><span class="hourly-rain">8%</span></div>
-        <div class="hourly-item"><span class="hourly-time">7 PM</span><span class="hourly-icon">🌆</span><span class="hourly-temp">31°</span><span class="hourly-rain">10%</span></div>
-        <div class="hourly-item"><span class="hourly-time">8 PM</span><span class="hourly-icon">🌙</span><span class="hourly-temp">29°</span><span class="hourly-rain">5%</span></div>
-        <div class="hourly-item"><span class="hourly-time">9 PM</span><span class="hourly-icon">🌙</span><span class="hourly-temp">28°</span><span class="hourly-rain">3%</span></div>
-        <div class="hourly-item"><span class="hourly-time">10 PM</span><span class="hourly-icon">🌙</span><span class="hourly-temp">27°</span><span class="hourly-rain">2%</span></div>
-        <div class="hourly-item"><span class="hourly-time">11 PM</span><span class="hourly-icon">🌙</span><span class="hourly-temp">27°</span><span class="hourly-rain">2%</span></div>
-        <div class="hourly-item"><span class="hourly-time">12 AM</span><span class="hourly-icon">⭐</span><span class="hourly-temp">26°</span><span class="hourly-rain">0%</span></div>
-        <div class="hourly-item"><span class="hourly-time">3 AM</span><span class="hourly-icon">🌙</span><span class="hourly-temp">26°</span><span class="hourly-rain">0%</span></div>
-        <div class="hourly-item"><span class="hourly-time">6 AM</span><span class="hourly-icon">🌅</span><span class="hourly-temp">27°</span><span class="hourly-rain">0%</span></div>
-        <div class="hourly-item"><span class="hourly-time">9 AM</span><span class="hourly-icon">☀️</span><span class="hourly-temp">31°</span><span class="hourly-rain">0%</span></div>
-        <div class="hourly-item"><span class="hourly-time">12 PM</span><span class="hourly-icon">☀️</span><span class="hourly-temp">36°</span><span class="hourly-rain">2%</span></div>
-      </div>
-    </div>
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent" style="display:none">
 
-    <!-- 5-Day Forecast -->
-    <div class="glass-card section-block">
-      <div class="section-header">
-        <div class="section-header-icon"><i class="fas fa-calendar-days"></i></div>
-        <h3>5-Day Forecast</h3>
-        <span class="section-header-right">Updated 3:20 PM</span>
-      </div>
-      <div class="forecast-list">
-        <div class="forecast-item today">
-          <span class="forecast-day">Today</span>
-          <span class="forecast-icon">☀️</span>
-          <span class="forecast-desc">Clear sky, very hot</span>
-          <span class="forecast-rain"><i class="fas fa-droplet"></i>0%</span>
-          <div class="forecast-bar-wrap">
-            <span class="forecast-min">27°</span>
-            <div class="forecast-bar"><div class="forecast-bar-fill" style="left:0;width:100%"></div></div>
-            <span class="forecast-max">38°</span>
+      <!-- Hero Section -->
+      <section class="hero-card glass-card">
+        <div class="hero-left">
+          <div class="city-name" id="cityName">—</div>
+          <div class="country-date">
+            <span id="countryName">—</span>
+            <span class="dot">•</span>
+            <span id="currentDate">—</span>
+          </div>
+          <div class="weather-main">
+            <div class="temp-display">
+              <span id="tempValue">—</span>
+              <span class="temp-unit" id="heroUnit">°C</span>
+            </div>
+            <div class="weather-desc" id="weatherDesc">—</div>
+          </div>
+          <div class="feels-row">
+            Feels like <strong id="feelsLike">—</strong> &nbsp;|&nbsp;
+            <span id="tempMinMax">—</span>
           </div>
         </div>
-        <div class="forecast-item">
-          <span class="forecast-day">Thu</span>
-          <span class="forecast-icon">🌤️</span>
-          <span class="forecast-desc">Partly cloudy, hot</span>
-          <span class="forecast-rain"><i class="fas fa-droplet"></i>5%</span>
-          <div class="forecast-bar-wrap">
-            <span class="forecast-min">26°</span>
-            <div class="forecast-bar"><div class="forecast-bar-fill" style="left:5%;width:85%"></div></div>
-            <span class="forecast-max">37°</span>
+        <div class="hero-right">
+          <div class="weather-icon-wrap" id="weatherIconWrap">
+            <div class="big-icon" id="bigIcon">⛅</div>
+          </div>
+          <div class="sun-times">
+            <div class="sun-item">
+              <i class="fa-solid fa-sun"></i>
+              <div>
+                <span class="sun-label">Sunrise</span>
+                <span id="sunrise">—</span>
+              </div>
+            </div>
+            <div class="sun-item">
+              <i class="fa-solid fa-moon"></i>
+              <div>
+                <span class="sun-label">Sunset</span>
+                <span id="sunset">—</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="forecast-item">
-          <span class="forecast-day">Fri</span>
-          <span class="forecast-icon">⛈️</span>
-          <span class="forecast-desc">Thunderstorm, warm</span>
-          <span class="forecast-rain"><i class="fas fa-droplet"></i>75%</span>
-          <div class="forecast-bar-wrap">
-            <span class="forecast-min">25°</span>
-            <div class="forecast-bar"><div class="forecast-bar-fill" style="left:10%;width:70%"></div></div>
-            <span class="forecast-max">33°</span>
-          </div>
-        </div>
-        <div class="forecast-item">
-          <span class="forecast-day">Sat</span>
-          <span class="forecast-icon">🌧️</span>
-          <span class="forecast-desc">Heavy rain, cool</span>
-          <span class="forecast-rain"><i class="fas fa-droplet"></i>90%</span>
-          <div class="forecast-bar-wrap">
-            <span class="forecast-min">24°</span>
-            <div class="forecast-bar"><div class="forecast-bar-fill" style="left:15%;width:60%"></div></div>
-            <span class="forecast-max">30°</span>
-          </div>
-        </div>
-        <div class="forecast-item">
-          <span class="forecast-day">Sun</span>
-          <span class="forecast-icon">🌦️</span>
-          <span class="forecast-desc">Showers, mild</span>
-          <span class="forecast-rain"><i class="fas fa-droplet"></i>40%</span>
-          <div class="forecast-bar-wrap">
-            <span class="forecast-min">24°</span>
-            <div class="forecast-bar"><div class="forecast-bar-fill" style="left:12%;width:65%"></div></div>
-            <span class="forecast-max">31°</span>
-          </div>
-        </div>
-      </div>
-    </div>
+      </section>
 
-    <!-- Bottom Grid -->
-    <div class="bottom-grid">
+      <!-- Stats Grid -->
+      <section class="stats-grid">
+        <div class="stat-card glass-card">
+          <i class="fa-solid fa-droplet stat-icon blue"></i>
+          <div class="stat-info">
+            <span class="stat-label">Humidity</span>
+            <span class="stat-value" id="humidity">—</span>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="humidityBar"></div></div>
+        </div>
+        <div class="stat-card glass-card">
+          <i class="fa-solid fa-wind stat-icon teal"></i>
+          <div class="stat-info">
+            <span class="stat-label">Wind Speed</span>
+            <span class="stat-value" id="windSpeed">—</span>
+          </div>
+          <div class="wind-dir" id="windDir"></div>
+        </div>
+        <div class="stat-card glass-card">
+          <i class="fa-solid fa-gauge stat-icon orange"></i>
+          <div class="stat-info">
+            <span class="stat-label">Pressure</span>
+            <span class="stat-value" id="pressure">—</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <i class="fa-solid fa-eye stat-icon purple"></i>
+          <div class="stat-info">
+            <span class="stat-label">Visibility</span>
+            <span class="stat-value" id="visibility">—</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <i class="fa-solid fa-cloud-rain stat-icon blue"></i>
+          <div class="stat-info">
+            <span class="stat-label">Cloud Cover</span>
+            <span class="stat-value" id="clouds">—</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <i class="fa-solid fa-compass stat-icon green"></i>
+          <div class="stat-info">
+            <span class="stat-label">Wind Dir.</span>
+            <span class="stat-value" id="windDeg">—</span>
+          </div>
+        </div>
+      </section>
 
-      <!-- AQI -->
-      <div class="glass-card aqi-card">
-        <div class="aqi-header">
-          <div class="section-header" style="margin-bottom:0">
-            <div class="section-header-icon"><i class="fas fa-lungs"></i></div>
+      <!-- Hourly Forecast -->
+      <section class="section-block glass-card">
+        <div class="section-header">
+          <i class="fa-solid fa-clock"></i>
+          <h3>24-Hour Forecast</h3>
+        </div>
+        <div class="hourly-scroll" id="hourlyScroll"></div>
+      </section>
+
+      <!-- 5-Day Forecast -->
+      <section class="section-block glass-card">
+        <div class="section-header">
+          <i class="fa-solid fa-calendar-days"></i>
+          <h3>5-Day Forecast</h3>
+        </div>
+        <div class="forecast-list" id="forecastList"></div>
+      </section>
+
+      <!-- Air Quality + Extra Info -->
+      <section class="bottom-grid">
+        <div class="glass-card aqi-card">
+          <div class="section-header">
+            <i class="fa-solid fa-lungs"></i>
             <h3>Air Quality</h3>
           </div>
-          <div class="aqi-live-badge"><div class="aqi-live-dot"></div>Live</div>
+          <div class="aqi-display">
+            <div class="aqi-index" id="aqiIndex">—</div>
+            <div class="aqi-label" id="aqiLabel">—</div>
+          </div>
+          <div class="aqi-details" id="aqiDetails"></div>
         </div>
-        <div class="aqi-display">
-          <span class="aqi-index aqi-moderate" id="aqiIndex">128</span>
-          <div class="aqi-label-wrap">
-            <span class="aqi-label aqi-moderate">Moderate</span>
-            <span class="aqi-sub">US AQI</span>
+        <div class="glass-card map-card">
+          <div class="section-header">
+            <i class="fa-solid fa-location-dot"></i>
+            <h3>Location Details</h3>
           </div>
+          <div class="location-details" id="locationDetails"></div>
         </div>
-        <div class="aqi-gauge">
-          <div class="aqi-gauge-marker" style="left:40%"></div>
-        </div>
-        <div class="aqi-details">
-          <div class="aqi-detail-item">
-            <span class="aqi-detail-name">PM2.5</span>
-            <span class="aqi-detail-value">44 µg/m³</span>
-          </div>
-          <div class="aqi-detail-item">
-            <span class="aqi-detail-name">PM10</span>
-            <span class="aqi-detail-value">68 µg/m³</span>
-          </div>
-          <div class="aqi-detail-item">
-            <span class="aqi-detail-name">NO₂</span>
-            <span class="aqi-detail-value">28 ppb</span>
-          </div>
-          <div class="aqi-detail-item">
-            <span class="aqi-detail-name">O₃</span>
-            <span class="aqi-detail-value">52 ppb</span>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      <!-- Location details -->
-      <div class="glass-card map-card">
-        <div class="section-header">
-          <div class="section-header-icon"><i class="fas fa-location-dot"></i></div>
-          <h3>Location Details</h3>
-        </div>
-        <div class="location-details">
-          <div class="loc-item">
-            <span class="loc-key"><i class="fas fa-map-pin"></i>Coordinates</span>
-            <span class="loc-val">22.57°N, 88.36°E</span>
-          </div>
-          <div class="loc-item">
-            <span class="loc-key"><i class="fas fa-mountain-sun"></i>Elevation</span>
-            <span class="loc-val">9 m</span>
-          </div>
-          <div class="loc-item">
-            <span class="loc-key"><i class="fas fa-clock"></i>Timezone</span>
-            <span class="loc-val">IST +5:30</span>
-          </div>
-          <div class="loc-item">
-            <span class="loc-key"><i class="fas fa-city"></i>Population</span>
-            <span class="loc-val">4.5 M</span>
-          </div>
-          <div class="loc-item">
-            <span class="loc-key"><i class="fas fa-satellite-dish"></i>Station</span>
-            <span class="loc-val">Dum Dum Airport</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </main>
 
-  </div><!-- /.main-content -->
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Nimbus Weather &copy; 2025</span>
+      <span>Powered by <a href="https://openweathermap.org" target="_blank">OpenWeatherMap</a></span>
+    </footer>
 
-  <footer class="app-footer">
-    <span>© 2026 Nimbus Weather</span>
-    <a href="#">Privacy</a>
-    <a href="#">API Credits</a>
-    <a href="#">OpenWeatherMap</a>
-  </footer>
-</div>
+  </div>
 
-<!-- Demo switcher bar -->
-<div class="demo-bar">
-  <span>Weather:</span>
-  <button class="demo-btn active" onclick="setWeather('clear','☀️','Clear Sky')">☀️ Clear</button>
-  <button class="demo-btn" onclick="setWeather('clouds','⛅','Partly Cloudy')">⛅ Clouds</button>
-  <button class="demo-btn" onclick="setWeather('rain','🌧️','Rain')">🌧️ Rain</button>
-  <button class="demo-btn" onclick="setWeather('drizzle','🌦️','Drizzle')">🌦️ Drizzle</button>
-  <button class="demo-btn" onclick="setWeather('thunderstorm','⛈️','Thunderstorm')">⛈️ Storm</button>
-  <button class="demo-btn" onclick="setWeather('snow','❄️','Snow')">❄️ Snow</button>
-  <button class="demo-btn" onclick="setWeather('mist','🌫️','Mist')">🌫️ Mist</button>
-  <button class="demo-btn" onclick="setWeather('dust','🌪️','Dust')">🌪️ Dust</button>
-
-  <div class="demo-sep"></div>
-
-  <span>Season:</span>
-  <button class="demo-btn" onclick="setSeason('spring')">🌸 Spring</button>
-  <button class="demo-btn active" onclick="setSeason('summer')">☀️ Summer</button>
-  <button class="demo-btn" onclick="setSeason('autumn')">🍂 Autumn</button>
-  <button class="demo-btn" onclick="setSeason('winter')">❄️ Winter</button>
-
-  <div class="demo-sep"></div>
-
-  <span>Temp:</span>
-  <button class="demo-btn temp-btn" data-temp="freezing"  onclick="setTemp('freezing','-8°','-12°','1°')">❄️ Freezing</button>
-  <button class="demo-btn temp-btn" data-temp="cold"      onclick="setTemp('cold','8°','4°','14°')">🧊 Cold</button>
-  <button class="demo-btn temp-btn" data-temp="mild"      onclick="setTemp('mild','22°','18°','26°')">🌿 Mild</button>
-  <button class="demo-btn temp-btn" data-temp="warm"      onclick="setTemp('warm','28°','23°','32°')">🌤 Warm</button>
-  <button class="demo-btn temp-btn active" data-temp="hot"onclick="setTemp('hot','34°','27°','38°')">🌡️ Hot</button>
-  <button class="demo-btn temp-btn" data-temp="very-hot"  onclick="setTemp('very-hot','40°','33°','44°')">🔥 Very Hot</button>
-  <button class="demo-btn temp-btn" data-temp="extreme"   onclick="setTemp('extreme','47°','38°','52°')">💀 Extreme</button>
-</div>
-
-<script>
-/* ── WEATHER SWITCHER ───────────────────────────── */
-const WEATHER_ICONS = {
-  clear:'☀️', clouds:'⛅', rain:'🌧️', drizzle:'🌦️',
-  thunderstorm:'⛈️', snow:'❄️', mist:'🌫️', fog:'🌫️',
-  haze:'🌫️', dust:'🌪️', sand:'🌪️'
-};
-
-function setWeather(type, icon, desc) {
-  const body = document.body;
-  // Remove all weather classes
-  body.className = body.className.replace(/weather-\w+/g, '').trim();
-  body.classList.add('weather-' + type);
-  document.querySelector('.big-icon').textContent = icon || WEATHER_ICONS[type] || '🌤️';
-  document.querySelector('.weather-badge').innerHTML = `<div class="weather-badge-dot"></div>${desc}`;
-  document.querySelector('.weather-desc').textContent = desc;
-
-  // Update demo btn states
-  document.querySelectorAll('.demo-bar .demo-btn:not(.temp-btn)').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-
-  // Special effects
-  stopParticles();
-  if (type === 'rain' || type === 'drizzle') startRain();
-  if (type === 'snow') startSnow();
-  if (type === 'mist' || type === 'fog') startFog();
-}
-
-/* ── SEASON SWITCHER ────────────────────────────── */
-function setSeason(season) {
-  const body = document.body;
-  body.className = body.className.replace(/season-\w+/g, '').trim();
-  body.classList.add('season-' + season);
-  document.querySelectorAll('.demo-bar .demo-btn:not(.temp-btn)').forEach(b => {
-    if (['spring','summer','autumn','winter'].some(s => b.textContent.toLowerCase().includes(s)))
-      b.classList.remove('active');
-  });
-  event.target.classList.add('active');
-}
-
-/* ── TEMPERATURE SWITCHER ───────────────────────── */
-const TEMP_DESCS = {
-  'freezing':'Bitterly cold','very-cold':'Very cold','cold':'Cold',
-  'cool':'Cool','mild':'Mild and pleasant','warm':'Warm','hot':'Hot & sunny',
-  'very-hot':'Very hot day','extreme':'Extreme heat warning'
-};
-function setTemp(band, temp, lo, hi) {
-  const tv = document.getElementById('tempValue');
-  tv.className = tv.className.replace(/temp-[\w-]+/g,'').trim();
-  tv.classList.add('temp-' + band);
-  tv.classList.add('num-updating');
-  tv.textContent = temp.replace('°','');
-  setTimeout(() => tv.classList.remove('num-updating'), 500);
-  document.querySelector('.weather-desc').textContent = TEMP_DESCS[band] || '';
-  document.querySelector('.temp-range').innerHTML = `
-    <span class="temp-range-item temp-hi"><i class="fas fa-arrow-up"></i>&nbsp;${hi}</span>
-    <span class="temp-range-item temp-lo"><i class="fas fa-arrow-down"></i>&nbsp;${lo}</span>
-  `;
-  document.querySelectorAll('.temp-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-}
-
-/* ── UNIT TOGGLE ────────────────────────────────── */
-let isCelsius = true;
-function toggleUnit(el) {
-  isCelsius = !isCelsius;
-  const thumb = document.getElementById('unitThumb');
-  const cEl   = document.getElementById('unitC');
-  const fEl   = document.getElementById('unitF');
-  if (isCelsius) {
-    thumb.style.left = '4px';
-    cEl.classList.add('active');
-    fEl.classList.remove('active');
-  } else {
-    thumb.style.left = 'calc(50% - 4px)';
-    cEl.classList.remove('active');
-    fEl.classList.add('active');
-  }
-}
-
-/* ── PARTICLES ENGINE ───────────────────────────── */
-const canvas = document.getElementById('particles-canvas');
-const ctx    = canvas.getContext('2d');
-let particles = [], animId = null, currentEffect = null;
-
-function resize() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-function stopParticles() {
-  if (animId) { cancelAnimationFrame(animId); animId = null; }
-  particles = [];
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  currentEffect = null;
-}
-
-/* Rain */
-function startRain() {
-  currentEffect = 'rain';
-  for (let i = 0; i < 160; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      len: 12 + Math.random() * 20,
-      speed: 12 + Math.random() * 8,
-      opacity: 0.2 + Math.random() * 0.4,
-    });
-  }
-  animateRain();
-}
-function animateRain() {
-  if (currentEffect !== 'rain') return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#7DD3FC';
-  particles.forEach(p => {
-    ctx.globalAlpha = p.opacity;
-    ctx.lineWidth = 0.8;
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-    ctx.lineTo(p.x - p.len * 0.15, p.y + p.len);
-    ctx.stroke();
-    p.y += p.speed;
-    p.x -= p.speed * 0.1;
-    if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
-  });
-  ctx.globalAlpha = 1;
-  animId = requestAnimationFrame(animateRain);
-}
-
-/* Snow */
-function startSnow() {
-  currentEffect = 'snow';
-  for (let i = 0; i < 100; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: 1.5 + Math.random() * 3,
-      speed: 0.5 + Math.random() * 1.2,
-      drift: (Math.random() - 0.5) * 0.4,
-      opacity: 0.4 + Math.random() * 0.5,
-    });
-  }
-  animateSnow();
-}
-function animateSnow() {
-  if (currentEffect !== 'snow') return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    ctx.globalAlpha = p.opacity;
-    ctx.fillStyle = '#E0F2FE';
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-    p.y += p.speed;
-    p.x += p.drift;
-    if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
-  });
-  ctx.globalAlpha = 1;
-  animId = requestAnimationFrame(animateSnow);
-}
-
-/* Fog */
-function startFog() {
-  currentEffect = 'fog';
-  for (let i = 0; i < 14; i++) {
-    particles.push({
-      x: Math.random() * canvas.width * 1.5 - canvas.width * 0.25,
-      y: 80 + Math.random() * (canvas.height - 160),
-      w: 300 + Math.random() * 400,
-      h: 80 + Math.random() * 120,
-      speed: 0.1 + Math.random() * 0.2,
-      opacity: 0.04 + Math.random() * 0.06,
-    });
-  }
-  animateFog();
-}
-function animateFog() {
-  if (currentEffect !== 'fog') return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => {
-    const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.w / 2);
-    grad.addColorStop(0, `rgba(200,215,230,${p.opacity})`);
-    grad.addColorStop(1, 'rgba(200,215,230,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.ellipse(p.x, p.y, p.w / 2, p.h / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    p.x += p.speed;
-    if (p.x > canvas.width + p.w) p.x = -p.w;
-  });
-  animId = requestAnimationFrame(animateFog);
-}
-
-/* Initial state */
-startRain();
-setWeather('clear','☀️','Clear Sky');
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
-
-
-
-<div class="sky">
-  <img src="https://i.imgur.com/U5AqP7P.png" class="cloud">
-  <img src="https://i.imgur.com/U5AqP7P.png" class="cloud">
-  <img src="https://i.imgur.com/U5AqP7P.png" class="cloud">
-</div>
-
-<div class="lightning"></div>
-<div class="sun-glow"></div>
