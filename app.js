@@ -596,3 +596,60 @@ function showError(msg) {
 // START
 // ─────────────────────────────────────
 document.addEventListener("DOMContentLoaded", init);
+
+
+
+
+
+/* =========================
+   AUTO WEATHER UI SYSTEM
+========================= */
+
+function setWeatherTheme(weather, temp) {
+  const body = document.body;
+
+  // RESET OLD CLASSES
+  body.className = "";
+
+  // WEATHER CONDITIONS
+  if (weather.includes("rain")) {
+    body.classList.add("rain");
+    triggerLightning();
+  }
+  else if (weather.includes("snow")) {
+    body.classList.add("snow");
+  }
+  else if (weather.includes("cloud")) {
+    body.classList.add("cloudy");
+  }
+  else {
+    body.classList.add("sunny");
+  }
+
+  // TEMPERATURE COLORS
+  if (temp > 35) body.classList.add("hot");
+  else if (temp > 25) body.classList.add("warm");
+  else if (temp > 15) body.classList.add("cool");
+  else body.classList.add("cold");
+
+  // DAY / NIGHT
+  const hour = new Date().getHours();
+  if (hour > 18 || hour < 6) {
+    body.classList.add("night");
+  }
+}
+
+/* =========================
+   LIGHTNING EFFECT
+========================= */
+function triggerLightning() {
+  setInterval(() => {
+    const lightning = document.querySelector(".lightning");
+    if (!lightning) return;
+
+    if (Math.random() > 0.7) {
+      lightning.classList.add("flash");
+      setTimeout(() => lightning.classList.remove("flash"), 300);
+    }
+  }, 3000);
+}
