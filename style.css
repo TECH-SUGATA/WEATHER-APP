@@ -916,3 +916,8 @@ a:hover { text-decoration: underline; }
 #apiModal {
   display: none !important;
 }
+
+
+#bg-layer {
+  background: url("https://chatgpt.com/backend-api/estuary/content?id=file_0000000090d871fa90e13174f73fd3bc&ts=493404&p=fs&cid=1&sig=1959b7a22d637b62855311aab72997a1b9d73b715f749adf59815cc2e1d71950&v=0") no-repeat center/cover;
+}
