@@ -4,7 +4,7 @@
 // =======================================
 
 const API_BASE = "https://api.openweathermap.org";
-let apiKey = localStorage.getItem("nimbus_api_key") || "";
+let apiKey =  "72fc6e50b083ab77234d0b237c920410";
 let isCelsius = true;
 let currentWeatherData = null;
 let currentForecastData = null;
