@@ -1,4 +1,4 @@
-* ===========================
+/* ===========================
    NIMBUS WEATHER — STYLES
    =========================== */
 
@@ -906,4 +906,4 @@ a:hover { text-decoration: underline; }
 
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
-  .hero-right { flex-direction: column; align-items: flex-s
+  .hero-right { flex-direction: column; align-items: flex-
