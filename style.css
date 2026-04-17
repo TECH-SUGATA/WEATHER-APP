@@ -1,4 +1,4 @@
-/* ===========================
+ /* ===========================
    NIMBUS WEATHER — STYLES
    =========================== */
 
@@ -906,4 +906,18 @@ a:hover { text-decoration: underline; }
 
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
-  .hero-right { flex-direction: column; align-items: flex-
+  .hero-right { flex-direction: column; align-items: flex-start; }
+  .sun-times { flex-direction: row; }
+  .big-icon { font-size: 5rem; }
+}
+
+
+
+#apiModal {
+  display: none !important;
+}
+
+
+#bg-layer {
+  background: url("https://images.openai.com/static-rsc-4/AEV_3ePCC3Fdu5KCV-sgc60iVS6lZriEtFgIIoHb1zACuZIbdBoYvpiKsnPmK2-DR4ToWUiOcyNhal0IpZbTMBdQ_5-XFltMo_qLf3GTu5y8qnekTpWPPBztCUY7_JNdO9eIEw3jlvgX6enfLl76eJVHc-zrEBqZj4RS9MCSiW_ILm7nwH-bDBdsO_zwy02X?purpose=inline") no-repeat center/cover;
+}
