@@ -1439,6 +1439,11 @@ a:hover { text-decoration: underline; }
 }
 
 
+#footerChangeKey {
+  display: none;
+}
+
+
 
 #apiModal {
   display: none !important;
@@ -1453,11 +1458,9 @@ a:hover { text-decoration: underline; }
   background: url("https://images.openai.com/static-rsc-4/eBYltuTvq8oPMva9ZMZC8PH_JHYLHMsUaZmfU8ZGMevISiXniSz305ei7ifsB5VKVRRqSla4QHc8IMTnodbLxUgai-blSM60DN9EhwSJkhlmE1nqyZSalt5BerrhXl1unim2rH_Xu-50D-4nabf9BClGuVXut5fzHB99U4H0ta0BhYqapR4A7rd6Vk9x0wDg?purpose=inline") no-repeat center/cover !important;
 }
 
-/* overlay */
 .bg-layer::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(10,20,40,0.5);
-  backdrop-filter: blur(6px);
+  background: rgba(10,20,40,0.35); /* only dark overlay */
 }
