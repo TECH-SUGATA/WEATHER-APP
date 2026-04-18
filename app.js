@@ -134,34 +134,59 @@ async function fetchSuggestions(query) {
 // ─────────────────────────────────────
 // GEOLOCATION
 // ─────────────────────────────────────
-geoBtn.addEventListener("click", () => {
-  if (!navigator.geolocation) {
-    showError("Geolocation not supported.");
-    return;
-  }
-  geoBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-  navigator.geolocation.getCurrentPosition(
-    async pos => {
-      geoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
-      const { latitude: lat, longitude: lon } = pos.coords;
-      try {
-        const res = await fetch(
-          `${API_BASE}/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`
-        );
-        const data = await res.json();
-        const name = data[0] ? `${data[0].name}, ${data[0].country}` : `${lat}, ${lon}`;
-        searchInput.value = name;
-        fetchWeatherByCoords(lat, lon, name);
-      } catch {
-        fetchWeatherByCoords(lat, lon, `${lat.toFixed(2)}, ${lon.toFixed(2)}`);
-      }
-    },
-    err => {
-      geoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
-      showError("Could not get your location.");
+
+navigator.geolocation.getCurrentPosition(
+  async pos => {
+    geoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
+
+    const { latitude: lat, longitude: lon } = pos.coords;
+
+    console.log("Lat:", lat, "Lon:", lon); // debug
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`
+      );
+
+      const data = await res.json();
+
+      const name = data?.[0]
+        ? `${data[0].name}, ${data[0].country}`
+        : `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+
+      searchInput.value = name;
+
+      fetchWeatherByCoords(lat, lon, name);
+
+    } catch {
+      fetchWeatherByCoords(lat, lon, `${lat.toFixed(2)}, ${lon.toFixed(2)}`);
     }
-  );
-});
+  },
+
+  // 🔴 ADD THIS ERROR HANDLER (IMPORTANT)
+  (error) => {
+    geoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
+
+    if (error.code === 1) {
+      showError("Permission denied. Enable location!");
+    } else if (error.code === 2) {
+      showError("Location unavailable.");
+    } else {
+      showError("Location timeout.");
+    }
+
+    console.error(error);
+  },
+
+  // 🔥 ADD THIS OPTIONS OBJECT (VERY IMPORTANT)
+  {
+    enableHighAccuracy: true,
+    timeout: 15000,
+    maximumAge: 0
+  }
+);
+
+
 
 // ─────────────────────────────────────
 // UNIT TOGGLE
