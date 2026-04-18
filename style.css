@@ -1296,3 +1296,144 @@ a:hover { text-decoration: underline; }
 
   .stat-value { font-size: 1.1rem; }
 }
+
+/* ===========================
+   HEADER SEARCH (main app)
+   =========================== */
+.app-header {
+  gap: 16px;
+}
+
+/* Give the search section flex-grow so it fills the middle */
+.header-search {
+  flex: 1;
+  min-width: 0;
+  max-width: 520px;
+  margin: 0 8px;
+}
+
+/* ===========================
+   PROFILE DROPDOWN
+   =========================== */
+.profile-dropdown {
+  position: fixed;
+  z-index: 9998;
+  min-width: 240px;
+  background: rgba(8, 18, 34, 0.97);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  box-shadow: 0 16px 60px rgba(0,0,0,0.5);
+  overflow: hidden;
+  animation: fadeUp 0.22s ease both;
+}
+
+.pd-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px 14px;
+}
+
+.pd-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  color: #0a1a2a;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pd-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pd-name {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pd-email {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pd-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 0 12px;
+}
+
+.pd-item {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 13px 20px;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.2s, color 0.2s;
+}
+.pd-item:hover {
+  background: rgba(255,255,255,0.07);
+  color: var(--text-primary);
+}
+.pd-item i { width: 16px; text-align: center; color: var(--accent); }
+
+.pd-logout { padding-bottom: 14px; }
+.pd-logout:hover { color: var(--danger) !important; }
+.pd-logout i { color: var(--danger) !important; }
+
+/* ===========================
+   RESPONSIVE — HEADER SEARCH
+   =========================== */
+@media (max-width: 768px) {
+  .app-header {
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    row-gap: 12px;
+  }
+
+  /* Logo left, controls right on row 1 */
+  .logo { order: 1; }
+  .header-right { order: 2; margin-left: auto; }
+
+  /* Search bar full width on row 2 */
+  .header-search {
+    order: 3;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    flex: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .unit-toggle { padding: 6px 10px; font-size: 0.82rem; }
+  .icon-btn { width: 36px; height: 36px; font-size: 0.85rem; }
+  .user-avatar-btn { width: 36px; height: 36px; font-size: 0.85rem; }
+  .header-right { gap: 7px; }
+}
