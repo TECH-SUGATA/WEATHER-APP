@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nimbus — Sign In</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script>
+    /* Redirect immediately if already logged in */
+    if (localStorage.getItem('nimbus_session')) window.location.href = 'index.html';
+  </script>
+</head>
+<body class="weather-clear">
+
+  <div class="bg-layer"></div>
+  <div class="bg-orbs">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+
+  <div class="auth-page">
+
+    <!-- ===== LEFT PANEL: Branding ===== -->
+    <div class="auth-left">
+      <div class="auth-brand-inner">
+
+        <div class="logo auth-logo">
+          <span class="logo-icon">⛅</span>
+          <span class="logo-text">Nimbus</span>
+        </div>
+
+        <h1 class="auth-tagline">Weather<br/><span>Intelligence</span></h1>
+
+        <p class="auth-sub">
+          Real-time forecasts, air quality data, hourly &amp; 5-day outlooks —
+          all in a stunning, fully customisable interface.
+        </p>
+
+        <div class="auth-features">
+          <div class="auth-feature">
+            <span class="af-icon"><i class="fa-solid fa-cloud-sun"></i></span>
+            <span>Live worldwide weather data</span>
+          </div>
+          <div class="auth-feature">
+            <span class="af-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+            <span>24-hour hourly forecast</span>
+          </div>
+          <div class="auth-feature">
+            <span class="af-icon"><i class="fa-solid fa-lungs"></i></span>
+            <span>Air Quality Index &amp; pollutants</span>
+          </div>
+          <div class="auth-feature">
+            <span class="af-icon"><i class="fa-solid fa-location-crosshairs"></i></span>
+            <span>GPS auto-detect location</span>
+          </div>
+          <div class="auth-feature">
+            <span class="af-icon"><i class="fa-solid fa-palette"></i></span>
+            <span>Fully customisable UI</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL: Auth Form ===== -->
+    <div class="auth-right">
+      <div class="auth-card glass-card">
+
+        <!-- Tab Switcher -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Sign In</button>
+          <button class="auth-tab" data-tab="signup">Create Account</button>
+        </div>
+
+        <!-- ===== LOGIN FORM ===== -->
+        <form class="auth-form" id="loginForm" novalidate>
+
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">Email address</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-envelope input-icon"></i>
+              <input
+                type="email"
+                id="loginEmail"
+                class="form-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+              />
+            </div>
+            <span class="form-error" id="loginEmailErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginPass">Password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input
+                type="password"
+                id="loginPass"
+                class="form-input"
+                placeholder="Your password"
+                autocomplete="current-password"
+              />
+              <button type="button" class="toggle-pw" aria-label="Show/hide password">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <span class="form-error" id="loginPassErr"></span>
+          </div>
+
+          <div class="form-row-space">
+            <label class="check-label">
+              <input type="checkbox" id="rememberMe" />
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-primary auth-submit">
+            Sign In &nbsp;<i class="fa-solid fa-arrow-right-long"></i>
+          </button>
+
+          <div class="auth-divider"><span>or</span></div>
+
+          <button type="button" class="demo-btn" id="demoBtn">
+            <i class="fa-solid fa-bolt"></i>&nbsp; Continue with Demo Access
+          </button>
+
+        </form>
+
+        <!-- ===== SIGNUP FORM ===== -->
+        <form class="auth-form" id="signupForm" style="display:none" novalidate>
+
+          <div class="form-group">
+            <label class="form-label" for="signupName">Full name</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-user input-icon"></i>
+              <input
+                type="text"
+                id="signupName"
+                class="form-input"
+                placeholder="Your full name"
+                autocomplete="name"
+              />
+            </div>
+            <span class="form-error" id="signupNameErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupEmail">Email address</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-envelope input-icon"></i>
+              <input
+                type="email"
+                id="signupEmail"
+                class="form-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+              />
+            </div>
+            <span class="form-error" id="signupEmailErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupPass">Password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input
+                type="password"
+                id="signupPass"
+                class="form-input"
+                placeholder="Min. 8 characters"
+              />
+              <button type="button" class="toggle-pw" aria-label="Show/hide password">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <span class="form-error" id="signupPassErr"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupConfirm">Confirm password</label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input
+                type="password"
+                id="signupConfirm"
+                class="form-input"
+                placeholder="Repeat your password"
+              />
+            </div>
+            <span class="form-error" id="signupConfirmErr"></span>
+          </div>
+
+          <div class="form-row-space">
+            <label class="check-label">
+              <input type="checkbox" id="agreeTerms" />
+              <span>I agree to the <a href="#">Terms of Service</a></span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary auth-submit">
+            Create Account &nbsp;<i class="fa-solid fa-arrow-right-long"></i>
+          </button>
+
+        </form>
+
+        <!-- Switch note -->
+        <p class="auth-switch-note" id="switchNote">
+          Don't have an account? <a href="#" id="switchLink">Create one →</a>
+        </p>
+
+      </div>
+    </div>
+
+  </div><!-- /auth-page -->
+
+  <script>
+    const loginForm  = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const switchNote = document.getElementById('switchNote');
+    const tabs       = document.querySelectorAll('.auth-tab');
+
+    function setTab(tab) {
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      loginForm.style.display  = tab === 'login'  ? 'flex' : 'none';
+      signupForm.style.display = tab === 'signup' ? 'flex' : 'none';
+      switchNote.innerHTML = tab === 'login'
+        ? `Don't have an account? <a href="#" id="switchLink">Create one →</a>`
+        : `Already have an account? <a href="#" id="switchLink">Sign in →</a>`;
+      document.getElementById('switchLink').addEventListener('click', e => {
+        e.preventDefault();
+        setTab(tab === 'login' ? 'signup' : 'login');
+      });
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
+    document.getElementById('switchLink').addEventListener('click', e => {
+      e.preventDefault(); setTab('signup');
+    });
+
+    document.querySelectorAll('.toggle-pw').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inp  = btn.parentElement.querySelector('input[type="password"], input[type="text"]');
+        const icon = btn.querySelector('i');
+        inp.type   = inp.type === 'password' ? 'text' : 'password';
+        icon.className = inp.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+      });
+    });
+
+    function setErr(id, msg)  { const el = document.getElementById(id); if (el) el.textContent = msg; }
+    function clrErr(...ids)   { ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; }); }
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function startSession(name, email) {
+      localStorage.setItem('nimbus_session', JSON.stringify({
+        name: name || email.split('@')[0],
+        email,
+        ts: Date.now()
+      }));
+      window.location.href = 'index.html';
+    }
+
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      clrErr('loginEmailErr', 'loginPassErr');
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass  = document.getElementById('loginPass').value;
+      let ok = true;
+      if (!email || !EMAIL_RE.test(email)) { setErr('loginEmailErr', 'Please enter a valid email address.'); ok = false; }
+      if (!pass)                           { setErr('loginPassErr',  'Password is required.');               ok = false; }
+      if (!ok) return;
+      const users = JSON.parse(localStorage.getItem('nimbus_users') || '[]');
+      const user  = users.find(u => u.email === email && u.pw === btoa(pass));
+      if (!user) { setErr('loginPassErr', 'Incorrect email or password. Try the Demo button below.'); return; }
+      startSession(user.name, user.email);
+    });
+
+    signupForm.addEventListener('submit', e => {
+      e.preventDefault();
+      clrErr('signupNameErr', 'signupEmailErr', 'signupPassErr', 'signupConfirmErr');
+      const name    = document.getElementById('signupName').value.trim();
+      const email   = document.getElementById('signupEmail').value.trim();
+      const pass    = document.getElementById('signupPass').value;
+      const confirm = document.getElementById('signupConfirm').value;
+      const agree   = document.getElementById('agreeTerms').checked;
+      let ok = true;
+      if (!name)                           { setErr('signupNameErr',    'Full name is required.');                   ok = false; }
+      if (!email || !EMAIL_RE.test(email)) { setErr('signupEmailErr',   'Please enter a valid email address.');      ok = false; }
+      if (pass.length < 8)                 { setErr('signupPassErr',    'Password must be at least 8 characters.');  ok = false; }
+      if (pass !== confirm)                { setErr('signupConfirmErr', 'Passwords do not match.');                  ok = false; }
+      if (!agree)                          { setErr('signupConfirmErr', 'You must accept the Terms of Service.');     ok = false; }
+      if (!ok) return;
+      const users = JSON.parse(localStorage.getItem('nimbus_users') || '[]');
+      if (users.find(u => u.email === email)) { setErr('signupEmailErr', 'This email is already registered. Sign in instead.'); return; }
+      users.push({ name, email, pw: btoa(pass) });
+      localStorage.setItem('nimbus_users', JSON.stringify(users));
+      startSession(name, email);
+    });
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      startSession('Demo User', 'demo@nimbus.app');
+    });
+  </script>
+</body>
+</html>
