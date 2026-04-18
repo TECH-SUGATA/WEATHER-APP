@@ -3,19 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nimbus — Sign In</title>
+  <title>Nimbus — Weather Intelligence</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <script>
-    /* Redirect immediately if already logged in */
-    if (localStorage.getItem('nimbus_session')) window.location.href = 'index.html';
-  </script>
 </head>
-<body class="weather-clear">
 
+<!-- id="app-body" is required by app.js for class toggling (dark-mode / weather-X) -->
+<body class="weather-clear" id="app-body">
+
+  <!-- ── Fixed background layers ── -->
   <div class="bg-layer"></div>
   <div class="bg-orbs">
     <div class="orb orb1"></div>
@@ -23,318 +22,370 @@
     <div class="orb orb3"></div>
   </div>
 
-  <div class="auth-page">
+  <!-- ── Error toast ── -->
+  <div class="error-toast" id="errorToast"></div>
 
-    <!-- ===== LEFT PANEL: Branding ===== -->
-    <div class="auth-left">
-      <div class="auth-brand-inner">
+  <!-- ── API Key Modal ── -->
+  <div class="modal-overlay hidden" id="apiModal">
+    <div class="modal-card">
+      <div class="modal-icon">🔑</div>
+      <h2>Welcome to <span>Nimbus</span></h2>
+      <p>Enter your free OpenWeatherMap API key to get started with real-time weather intelligence worldwide.</p>
+      <a href="https://openweathermap.org/api" target="_blank" class="get-key-link">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp; Get a free API key →
+      </a>
+      <input
+        type="text"
+        id="apiKeyInput"
+        placeholder="Paste your API key here…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button class="btn-primary" id="saveApiKey">
+        Save &amp; Continue &nbsp;<i class="fa-solid fa-arrow-right-long"></i>
+      </button>
+      <small>Your key is stored locally in your browser and never shared.</small>
+    </div>
+  </div>
 
-        <div class="logo auth-logo">
-          <span class="logo-icon">⛅</span>
-          <span class="logo-text">Nimbus</span>
-        </div>
-
-        <h1 class="auth-tagline">Weather<br/><span>Intelligence</span></h1>
-
-        <p class="auth-sub">
-          Real-time forecasts, air quality data, hourly &amp; 5-day outlooks —
-          all in a stunning, fully customisable interface.
-        </p>
-
-        <div class="auth-features">
-          <div class="auth-feature">
-            <span class="af-icon"><i class="fa-solid fa-cloud-sun"></i></span>
-            <span>Live worldwide weather data</span>
-          </div>
-          <div class="auth-feature">
-            <span class="af-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
-            <span>24-hour hourly forecast</span>
-          </div>
-          <div class="auth-feature">
-            <span class="af-icon"><i class="fa-solid fa-lungs"></i></span>
-            <span>Air Quality Index &amp; pollutants</span>
-          </div>
-          <div class="auth-feature">
-            <span class="af-icon"><i class="fa-solid fa-location-crosshairs"></i></span>
-            <span>GPS auto-detect location</span>
-          </div>
-          <div class="auth-feature">
-            <span class="af-icon"><i class="fa-solid fa-palette"></i></span>
-            <span>Fully customisable UI</span>
-          </div>
-        </div>
-
+  <!-- ── User Profile Dropdown ── -->
+  <div class="profile-dropdown hidden" id="profileDropdown">
+    <div class="pd-user">
+      <div class="pd-avatar" id="pdAvatar"></div>
+      <div class="pd-info">
+        <span class="pd-name" id="pdName"></span>
+        <span class="pd-email" id="pdEmail"></span>
       </div>
     </div>
+    <div class="pd-divider"></div>
+    <button class="pd-item" id="changeKeyBtn">
+      <i class="fa-solid fa-key"></i> Change API Key
+    </button>
+    <button class="pd-item pd-logout" id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+    </button>
+  </div>
 
-    <!-- ===== RIGHT PANEL: Auth Form ===== -->
-    <div class="auth-right">
-      <div class="auth-card glass-card">
+  <!-- ══════════════════════════════════════
+       MAIN APP WRAPPER
+  ══════════════════════════════════════ -->
+  <div class="app-wrapper">
 
-        <!-- Tab Switcher -->
-        <div class="auth-tabs">
-          <button class="auth-tab active" data-tab="login">Sign In</button>
-          <button class="auth-tab" data-tab="signup">Create Account</button>
-        </div>
+    <!-- ── HEADER ── -->
+    <header class="app-header">
 
-        <!-- ===== LOGIN FORM ===== -->
-        <form class="auth-form" id="loginForm" novalidate>
-
-          <div class="form-group">
-            <label class="form-label" for="loginEmail">Email address</label>
-            <div class="input-wrap">
-              <i class="fa-solid fa-envelope input-icon"></i>
-              <input
-                type="email"
-                id="loginEmail"
-                class="form-input"
-                placeholder="you@example.com"
-                autocomplete="email"
-              />
-            </div>
-            <span class="form-error" id="loginEmailErr"></span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="loginPass">Password</label>
-            <div class="input-wrap">
-              <i class="fa-solid fa-lock input-icon"></i>
-              <input
-                type="password"
-                id="loginPass"
-                class="form-input"
-                placeholder="Your password"
-                autocomplete="current-password"
-              />
-              <button type="button" class="toggle-pw" aria-label="Show/hide password">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </div>
-            <span class="form-error" id="loginPassErr"></span>
-          </div>
-
-          <div class="form-row-space">
-            <label class="check-label">
-              <input type="checkbox" id="rememberMe" />
-              <span>Remember me</span>
-            </label>
-            <a href="#" class="forgot-link">Forgot password?</a>
-          </div>
-
-          <button type="submit" class="btn-primary auth-submit">
-            Sign In &nbsp;<i class="fa-solid fa-arrow-right-long"></i>
-          </button>
-
-          <div class="auth-divider"><span>or</span></div>
-
-          <button type="button" class="demo-btn" id="demoBtn">
-            <i class="fa-solid fa-bolt"></i>&nbsp; Continue with Demo Access
-          </button>
-
-        </form>
-
-        <!-- ===== SIGNUP FORM ===== -->
-        <form class="auth-form" id="signupForm" style="display:none" novalidate>
-
-          <div class="form-group">
-            <label class="form-label" for="signupName">Full name</label>
-            <div class="input-wrap">
-              <i class="fa-solid fa-user input-icon"></i>
-              <input
-                type="text"
-                id="signupName"
-                class="form-input"
-                placeholder="Your full name"
-                autocomplete="name"
-              />
-            </div>
-            <span class="form-error" id="signupNameErr"></span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="signupEmail">Email address</label>
-            <div class="input-wrap">
-              <i class="fa-solid fa-envelope input-icon"></i>
-              <input
-                type="email"
-                id="signupEmail"
-                class="form-input"
-                placeholder="you@example.com"
-                autocomplete="email"
-              />
-            </div>
-            <span class="form-error" id="signupEmailErr"></span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="signupPass">Password</label>
-            <div class="input-wrap">
-              <i class="fa-solid fa-lock input-icon"></i>
-              <input
-                type="password"
-                id="signupPass"
-                class="form-input"
-                placeholder="Min. 8 characters"
-              />
-              <button type="button" class="toggle-pw" aria-label="Show/hide password">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </div>
-            <span class="form-error" id="signupPassErr"></span>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="signupConfirm">Confirm password</label>
-            <div class="input-wrap">
-              <i class="fa-solid fa-lock input-icon"></i>
-              <input
-                type="password"
-                id="signupConfirm"
-                class="form-input"
-                placeholder="Repeat your password"
-              />
-            </div>
-            <span class="form-error" id="signupConfirmErr"></span>
-          </div>
-
-          <div class="form-row-space">
-            <label class="check-label">
-              <input type="checkbox" id="agreeTerms" />
-              <span>I agree to the <a href="#">Terms of Service</a></span>
-            </label>
-          </div>
-
-          <button type="submit" class="btn-primary auth-submit">
-            Create Account &nbsp;<i class="fa-solid fa-arrow-right-long"></i>
-          </button>
-
-        </form>
-
-        <!-- Switch note -->
-        <p class="auth-switch-note" id="switchNote">
-          Don't have an account? <a href="#" id="switchLink">Create one →</a>
-        </p>
-
+      <!-- Logo -->
+      <div class="logo">
+        <span class="logo-icon">⛅</span>
+        <span class="logo-text">Nimbus</span>
       </div>
+
+      <!-- Search bar (centre, expands) -->
+      <div class="search-section header-search">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search city or location…"
+            autocomplete="off"
+          />
+          <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+        <div class="suggestions-box" id="suggestionsBox"></div>
+      </div>
+
+      <!-- Right controls -->
+      <div class="header-right">
+        <!-- Geo button -->
+        <button class="icon-btn" id="geoBtn" title="Use my location">
+          <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+
+        <!-- Dark mode toggle -->
+        <button class="icon-btn" id="themeBtn" title="Toggle dark mode">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+
+        <!-- °C / °F toggle -->
+        <button class="unit-toggle" id="unitToggle" title="Toggle units">
+          <span id="unitLabel">°C</span>
+        </button>
+
+        <!-- User avatar — opens dropdown -->
+        <button class="user-avatar-btn" id="userAvatarBtn" title="Account"></button>
+      </div>
+
+    </header>
+
+    <!-- ── LOADING OVERLAY ── -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <p>Fetching weather data…</p>
     </div>
 
-  </div><!-- /auth-page -->
+    <!-- ══════════════════════════════════════
+         MAIN CONTENT (hidden until data loads)
+    ══════════════════════════════════════ -->
+    <main class="main-content" id="mainContent" style="display:none">
+
+      <!-- ── HERO CARD ── -->
+      <div class="hero-card glass-card">
+
+        <div class="hero-left">
+          <h1 class="city-name" id="cityName">—</h1>
+
+          <div class="country-date">
+            <span id="countryName"></span>
+            <span class="dot">·</span>
+            <span id="currentDate"></span>
+          </div>
+
+          <div class="temp-display">
+            <span id="tempValue">—</span>
+            <span class="temp-unit" id="heroUnit">°C</span>
+          </div>
+
+          <p class="weather-desc" id="weatherDesc">Loading…</p>
+
+          <div class="feels-row">
+            Feels like <strong id="feelsLike">—</strong>
+            &nbsp;·&nbsp;
+            <span id="tempMinMax"></span>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="weather-icon-wrap">
+            <div class="big-icon" id="bigIcon">🌡️</div>
+          </div>
+
+          <div class="sun-times">
+            <div class="sun-item">
+              <i class="fa-solid fa-sun"></i>
+              <div>
+                <span class="sun-label">Sunrise</span>
+                <span id="sunrise">—</span>
+              </div>
+            </div>
+            <div class="sun-item">
+              <i class="fa-solid fa-moon"></i>
+              <div>
+                <span class="sun-label">Sunset</span>
+                <span id="sunset">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /hero-card -->
+
+      <!-- ── STATS GRID ── -->
+      <div class="stats-grid">
+
+        <!-- Humidity -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-droplet"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Humidity</span>
+            <span class="stat-value" id="humidity">—</span>
+          </div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="humidityBar" style="width:0%"></div></div>
+        </div>
+
+        <!-- Wind -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon teal"><i class="fa-solid fa-wind"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Wind Speed</span>
+            <span class="stat-value" id="windSpeed">—</span>
+          </div>
+          <div class="wind-dir" id="windDir">—</div>
+        </div>
+
+        <!-- Pressure -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon orange"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Pressure</span>
+            <span class="stat-value" id="pressure">—</span>
+          </div>
+        </div>
+
+        <!-- Visibility -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon purple"><i class="fa-solid fa-eye"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Visibility</span>
+            <span class="stat-value" id="visibility">—</span>
+          </div>
+        </div>
+
+        <!-- Cloud Cover -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-cloud"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Cloud Cover</span>
+            <span class="stat-value" id="clouds">—</span>
+          </div>
+        </div>
+
+        <!-- Wind Direction -->
+        <div class="stat-card glass-card">
+          <div class="stat-icon green"><i class="fa-solid fa-compass"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Wind Direction</span>
+            <span class="stat-value" id="windDeg">—</span>
+          </div>
+        </div>
+
+      </div><!-- /stats-grid -->
+
+      <!-- ── HOURLY FORECAST ── -->
+      <div class="section-block glass-card">
+        <div class="section-header">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <h3>24-Hour Forecast</h3>
+        </div>
+        <div class="hourly-scroll" id="hourlyScroll">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- ── 5-DAY FORECAST ── -->
+      <div class="section-block glass-card">
+        <div class="section-header">
+          <i class="fa-solid fa-calendar-days"></i>
+          <h3>5-Day Forecast</h3>
+        </div>
+        <div class="forecast-list" id="forecastList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- ── BOTTOM GRID: AQI + Location ── -->
+      <div class="bottom-grid">
+
+        <!-- Air Quality -->
+        <div class="aqi-card glass-card">
+          <div class="section-header">
+            <i class="fa-solid fa-lungs"></i>
+            <h3>Air Quality Index</h3>
+          </div>
+          <div class="aqi-display">
+            <span class="aqi-index" id="aqiIndex">—</span>
+            <span class="aqi-label" id="aqiLabel">—</span>
+          </div>
+          <div class="aqi-details" id="aqiDetails">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Location Details -->
+        <div class="map-card glass-card">
+          <div class="section-header">
+            <i class="fa-solid fa-location-dot"></i>
+            <h3>Location Details</h3>
+          </div>
+          <div class="location-details" id="locationDetails">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div><!-- /bottom-grid -->
+
+      <!-- ── FOOTER ── -->
+      <footer class="app-footer">
+        <span>Powered by <a href="https://openweathermap.org" target="_blank">OpenWeatherMap</a></span>
+        <span>·</span>
+        <span>© 2026 Nimbus</span>
+        <span>·</span>
+        <a href="#" id="footerChangeKey">Change API Key</a>
+      </footer>
+
+    </main><!-- /main-content -->
+
+  </div><!-- /app-wrapper -->
+
+  <script src="app.js"></script>
 
   <script>
-    /* ===========================
-       NIMBUS — AUTH LOGIC
-       =========================== */
+    /* =====================================================
+       NIMBUS — SESSION GUARD + PROFILE DROPDOWN
+       ===================================================== */
 
-    const loginForm    = document.getElementById('loginForm');
-    const signupForm   = document.getElementById('signupForm');
-    const switchNote   = document.getElementById('switchNote');
-    const tabs         = document.querySelectorAll('.auth-tab');
+    // ── 1. Session guard — redirect to login if no session ──
+    const sessionRaw = localStorage.getItem('nimbus_session');
+    if (!sessionRaw) {
+      window.location.href = 'login.html';
+    }
 
-    /* ---- Tab switching ---- */
-    function setTab(tab) {
-      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-      loginForm.style.display  = tab === 'login'  ? 'flex' : 'none';
-      signupForm.style.display = tab === 'signup' ? 'flex' : 'none';
-      switchNote.innerHTML = tab === 'login'
-        ? `Don't have an account? <a href="#" id="switchLink">Create one →</a>`
-        : `Already have an account? <a href="#" id="switchLink">Sign in →</a>`;
-      document.getElementById('switchLink').addEventListener('click', e => {
+    // ── 2. Populate user avatar + dropdown ──
+    const session = JSON.parse(sessionRaw || '{}');
+    const initials = (session.name || 'U')
+      .split(' ')
+      .map(w => w[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+
+    const avatarBtn  = document.getElementById('userAvatarBtn');
+    const dropdown   = document.getElementById('profileDropdown');
+    const pdAvatar   = document.getElementById('pdAvatar');
+    const pdName     = document.getElementById('pdName');
+    const pdEmail    = document.getElementById('pdEmail');
+    const logoutBtn  = document.getElementById('logoutBtn');
+    const footerKey  = document.getElementById('footerChangeKey');
+
+    avatarBtn.textContent = initials;
+    pdAvatar.textContent  = initials;
+    pdName.textContent    = session.name  || 'User';
+    pdEmail.textContent   = session.email || '';
+
+    // ── 3. Dropdown toggle ──
+    avatarBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      dropdown.classList.toggle('hidden');
+      positionDropdown();
+    });
+
+    document.addEventListener('click', e => {
+      if (!dropdown.contains(e.target) && e.target !== avatarBtn) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    function positionDropdown() {
+      const rect = avatarBtn.getBoundingClientRect();
+      dropdown.style.top  = (rect.bottom + 10) + 'px';
+      dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+    }
+
+    // ── 4. Logout ──
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('nimbus_session');
+      window.location.href = 'login.html';
+    });
+
+    // ── 5. Footer change key alias ──
+    if (footerKey) {
+      footerKey.addEventListener('click', e => {
         e.preventDefault();
-        setTab(tab === 'login' ? 'signup' : 'login');
+        document.getElementById('apiModal').classList.remove('hidden');
+        dropdown.classList.add('hidden');
       });
     }
 
-    tabs.forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
-    document.getElementById('switchLink').addEventListener('click', e => {
-      e.preventDefault(); setTab('signup');
-    });
-
-    /* ---- Password visibility toggles ---- */
-    document.querySelectorAll('.toggle-pw').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const inp  = btn.parentElement.querySelector('input[type="password"], input[type="text"]');
-        const icon = btn.querySelector('i');
-        inp.type   = inp.type === 'password' ? 'text' : 'password';
-        icon.className = inp.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
-      });
-    });
-
-    /* ---- Error helpers ---- */
-    function setErr(id, msg)  { const el = document.getElementById(id); if (el) el.textContent = msg; }
-    function clrErr(...ids)   { ids.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; }); }
-    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    /* ---- Session helper ---- */
-    function startSession(name, email) {
-      localStorage.setItem('nimbus_session', JSON.stringify({
-        name: name || email.split('@')[0],
-        email,
-        ts: Date.now()
-      }));
-      window.location.href = 'index.html';
-    }
-
-    /* ---- LOGIN ---- */
-    loginForm.addEventListener('submit', e => {
-      e.preventDefault();
-      clrErr('loginEmailErr', 'loginPassErr');
-
-      const email = document.getElementById('loginEmail').value.trim();
-      const pass  = document.getElementById('loginPass').value;
-      let ok = true;
-
-      if (!email || !EMAIL_RE.test(email)) {
-        setErr('loginEmailErr', 'Please enter a valid email address.'); ok = false;
+    // ── 6. Sync changeKeyBtn (defined in app.js) also closes dropdown ──
+    document.addEventListener('DOMContentLoaded', () => {
+      const ckBtn = document.getElementById('changeKeyBtn');
+      if (ckBtn) {
+        ckBtn.addEventListener('click', () => {
+          dropdown.classList.add('hidden');
+        });
       }
-      if (!pass) {
-        setErr('loginPassErr', 'Password is required.'); ok = false;
-      }
-      if (!ok) return;
-
-      const users = JSON.parse(localStorage.getItem('nimbus_users') || '[]');
-      const user  = users.find(u => u.email === email && u.pw === btoa(pass));
-
-      if (!user) {
-        setErr('loginPassErr', 'Incorrect email or password. Try the Demo button below.');
-        return;
-      }
-      startSession(user.name, user.email);
     });
-
-    /* ---- SIGN UP ---- */
-    signupForm.addEventListener('submit', e => {
-      e.preventDefault();
-      clrErr('signupNameErr', 'signupEmailErr', 'signupPassErr', 'signupConfirmErr');
-
-      const name    = document.getElementById('signupName').value.trim();
-      const email   = document.getElementById('signupEmail').value.trim();
-      const pass    = document.getElementById('signupPass').value;
-      const confirm = document.getElementById('signupConfirm').value;
-      const agree   = document.getElementById('agreeTerms').checked;
-      let ok = true;
-
-      if (!name)                              { setErr('signupNameErr',    'Full name is required.');                    ok = false; }
-      if (!email || !EMAIL_RE.test(email))    { setErr('signupEmailErr',   'Please enter a valid email address.');       ok = false; }
-      if (pass.length < 8)                    { setErr('signupPassErr',    'Password must be at least 8 characters.');   ok = false; }
-      if (pass !== confirm)                   { setErr('signupConfirmErr', 'Passwords do not match.');                   ok = false; }
-      if (!agree)                             { setErr('signupConfirmErr', 'You must accept the Terms of Service.');      ok = false; }
-      if (!ok) return;
-
-      const users = JSON.parse(localStorage.getItem('nimbus_users') || '[]');
-      if (users.find(u => u.email === email)) {
-        setErr('signupEmailErr', 'This email is already registered. Sign in instead.'); return;
-      }
-
-      users.push({ name, email, pw: btoa(pass) });
-      localStorage.setItem('nimbus_users', JSON.stringify(users));
-      startSession(name, email);
-    });
-
-    /* ---- DEMO ACCESS ---- */
-    document.getElementById('demoBtn').addEventListener('click', () => {
-      startSession('Demo User', 'demo@nimbus.app');
-    });
-
   </script>
+
 </body>
 </html>
