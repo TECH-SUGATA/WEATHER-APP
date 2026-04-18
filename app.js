@@ -141,7 +141,7 @@ navigator.geolocation.getCurrentPosition(
 
     const { latitude: lat, longitude: lon } = pos.coords;
 
-    console.log("Lat:", lat, "Lon:", lon); // debug
+    console.log("Lat:", lat, "Lon:", lon);
 
     try {
       const res = await fetch(
@@ -163,7 +163,7 @@ navigator.geolocation.getCurrentPosition(
     }
   },
 
-  // 🔴 ADD THIS ERROR HANDLER (IMPORTANT)
+  // 🔴 ERROR HANDLER
   (error) => {
     geoBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i>';
 
@@ -178,14 +178,13 @@ navigator.geolocation.getCurrentPosition(
     console.error(error);
   },
 
-  // 🔥 ADD THIS OPTIONS OBJECT (VERY IMPORTANT)
+  // 🔥 ADD THIS PART (THIS IS WHAT YOU ASKED)
   {
     enableHighAccuracy: true,
-    timeout: 15000,
+    timeout: 20000,
     maximumAge: 0
   }
 );
-
 
 
 // ─────────────────────────────────────
