@@ -1437,3 +1437,14 @@ a:hover { text-decoration: underline; }
   .user-avatar-btn { width: 36px; height: 36px; font-size: 0.85rem; }
   .header-right { gap: 7px; }
 }
+
+
+
+#apiModal {
+  display: none !important;
+}
+
+
+#bg-layer {
+  background: url("https://images.openai.com/static-rsc-4/1YDtOM2Q3OZ0AeRkoZ5M7BcyWEklUCKj5bFUPn5J3L8DzveMKRMnayejlQAk-IEM_8iCbHHFBe-YG2DjHjo_B_PNa7DJa9yoi7kdn1af0URVKLOZAeZ51EB-0fCi5PJF18Dn5ZnQMtf_9IbWDWnZLS-z_bVymRvhlKdqKLJovyUEMy2zX1eXuW-WlKfEISqA?purpose=inline") no-repeat center/cover;
+}
