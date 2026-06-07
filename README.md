@@ -1,4 +1,4 @@
-# 🌦️ Nimbus – Weather Intelligence App
+  # 🌦️ Nimbus – Weather Intelligence App
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Live-success?style=for-the-badge" />
